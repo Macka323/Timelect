@@ -1,15 +1,15 @@
 int numb(int display, int number) {
 
 
-  int r = 0, g = 50, b = 0;
  
-  display = 3;
+  //display = 2;
 
   
-   number = 0;
+  // number = 2;
 
-Serial.println("stiga do funkcijata numb");
-Serial.println(number);
+//Serial.println("stiga do funkcijata numb");
+//Serial.println(number);
+
   int add;
 
   if (display == 0) {
@@ -25,58 +25,91 @@ Serial.println(number);
     add = 17;
   }
 
-void led1(){
-    leds[19 - add].setRGB(r, g, b);
-    leds[18 - add].setRGB(r, g, b);
-}
-void led2(){
-    leds[24 + add].setRGB(r, g, b);
-    leds[59 - add].setRGB(r, g, b);
-}
-void led3(){
-    leds[108 + add].setRGB(r, g, b);
-    leds[101 - add].setRGB(r, g, b);
-}
-void led4(){
-    leds[145 - add].setRGB(r, g, b);
-    leds[144 - add].setRGB(r, g, b);
-}
-void led5(){
-    leds[104 - add].setRGB(r, g, b);
-    leds[105 + add].setRGB(r, g, b);
-}
-void led6(){
-    leds[21 + add].setRGB(r, g, b);
-    leds[62 - add].setRGB(r, g, b);
-}
-void led7(){
-    leds[64 - add].setRGB(r, g, b);
-    leds[65 - add].setRGB(r, g, b);
-}
+
 
 
   if (number == 0) {
-
+    led1(add);
+    led2(add);
+    led3(add);
+    led4(add);
+    led5(add);
+    led6(add);
   FastLED.show();
   }
 
   if (number == 1) {
-    
+    led2(add);
+    led3(add);
   FastLED.show();
   }
 
   if (number == 2) {
-    
+    led1(add);
+    led2(add);
+    led7(add);
+    led5(add);
+    led4(add);
   FastLED.show();
   }
 
-  if (number == 3) {  
-
+  if (number == 3) {
+    led1(add);
+    led2(add);
+    led7(add);
+    led3(add);
+    led4(add);
   FastLED.show();
+  }
+
+  if (number == 4) {
+    led6(add);
+    led7(add);
+    led2(add);
+    led3(add);
+  FastLED.show();
+  }
+  if(number==5){
+    led1(add);
+    led6(add);
+    led7(add);
+    led3(add);
+    led4(add);
+FastLED.show();
+  }
+  if (number==6){
+    led1(add);
+    led7(add);
+    led3(add);
+    led4(add);
+    led5(add);
+    led6(add);
+    FastLED.show();
+  }
+  if(number==7){
+    led1(add);
+    led2(add);
+    led3(add);
+    FastLED.show();
+  }
+  if (number==8){
+    led1(add);
+    led2(add);
+    led3(add);
+    led4(add);
+    led5(add);
+    led6(add);
+    led7(add);
+    FastLED.show();
+  }
+  if (number==9){
+    led1(add);
+    led2(add);
+    led3(add);
+    led4(add);
+    led6(add);
+    led7(add);
+    FastLED.show();
   }
   
-  if (number == 4) {
-      
-  FastLED.show();
-  }
 }

@@ -5,6 +5,7 @@ CRGB leds[NUM_LEDS];
 int time;
 int display[4];
 
+  int r = 0, g = 50, b = 0;
 
 void setup() {
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
@@ -15,9 +16,10 @@ void setup() {
 void loop() {
 
   if (Serial.available() > 0) {
-    if (Serial.parseInt() != 0) {
       time = Serial.parseInt();
-    }
+      for(int i=0;i<NUM_LEDS;i++){
+  leds[i].setRGB(0, 0, 0);
+}
   }
 
 
@@ -34,6 +36,8 @@ void loop() {
   Serial.println(display[2]);
   Serial.print("display 3 - ");
   Serial.println(display[3]);
+
+
 
   numb(0, display[0]);
   numb(1, display[1]);
