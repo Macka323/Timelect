@@ -4,7 +4,7 @@
 CRGB leds[NUM_LEDS];
 
 
-int x[5],xl[5];
+int x[5], c[9];
 char y;
 
 
@@ -17,9 +17,10 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
-    y = Serial.read();
+  if (Serial.available() > 0) {
+    y = Serial.peek();
     if (y == 'a') {
+      Serial.read();
       x[0] = Serial.read() - 48;
       x[1] = Serial.read() - 48;
       x[2] = Serial.read() - 48;
@@ -33,11 +34,26 @@ void loop() {
       Serial.print("x4-");
       Serial.println(x[3]);
     }
-    
-  numb(0, x[0]);
-  numb(1, x[1]);
-  numb(2, x[2]);
-  numb(3, x[3]);
+    y = Serial.peek();
+    if (y == 'c') {
+      Serial.read();
+      c[0] = Serial.read() - 48;
+      c[1] = Serial.read() - 48;
+      c[2] = Serial.read() - 48;
+      c[3] = Serial.read() - 48;
+      c[4] = Serial.read() - 48;
+      c[5] = Serial.read() - 48;
+      c[6] = Serial.read() - 48;
+      c[7] = Serial.read() - 48;
+      c[8] = Serial.read() - 48;
+      c[8] = Serial.read() - 48;
+
+    }
 
 
+    numb(0, x[0]);
+    numb(1, x[1]);
+    numb(2, x[2]);
+    numb(3, x[3]);
+  }
 }
