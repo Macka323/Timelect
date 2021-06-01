@@ -15,7 +15,7 @@ int numb(int display, int number) {
     add = 17;
   }
 
-int r=0,g=5,b=0;
+
 
 
   if (number == 0) {
