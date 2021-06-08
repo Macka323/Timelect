@@ -76,9 +76,9 @@ void display::numb(int display, int number)
   }
 
   //int r=0,g=5,b=0;
-
-  if (number == 0)
+  switch (number)
   {
+  case 0:
     led1(add, r, g, b);
     led2(add, r, g, b);
     led3(add, r, g, b);
@@ -87,10 +87,9 @@ void display::numb(int display, int number)
     led6(add, r, g, b);
     led7(add, 0, 0, 0);
     FastLED.show();
-  }
+    break;
 
-  if (number == 1)
-  {
+  case 1:
     led1(add, 0, 0, 0);
     led2(add, r, g, b);
     led3(add, r, g, b);
@@ -99,10 +98,8 @@ void display::numb(int display, int number)
     led6(add, 0, 0, 0);
     led7(add, 0, 0, 0);
     FastLED.show();
-  }
 
-  if (number == 2)
-  {
+  case 2:
     led1(add, r, g, b);
     led2(add, r, g, b);
     led3(add, 0, 0, 0);
@@ -111,10 +108,9 @@ void display::numb(int display, int number)
     led6(add, 0, 0, 0);
     led7(add, r, g, b);
     FastLED.show();
-  }
+    break;
 
-  if (number == 3)
-  {
+  case 3:
     led1(add, r, g, b);
     led2(add, r, g, b);
     led3(add, r, g, b);
@@ -123,10 +119,9 @@ void display::numb(int display, int number)
     led6(add, 0, 0, 0);
     led7(add, r, g, b);
     FastLED.show();
-  }
+    break;
 
-  if (number == 4)
-  {
+  case 4:
     led1(add, 0, 0, 0);
     led2(add, r, g, b);
     led3(add, r, g, b);
@@ -136,9 +131,8 @@ void display::numb(int display, int number)
     led7(add, r, g, b);
 
     FastLED.show();
-  }
-  if (number == 5)
-  {
+    break;
+  case 5:
     led1(add, r, g, b);
     led2(add, 0, 0, 0);
     led3(add, r, g, b);
@@ -148,9 +142,8 @@ void display::numb(int display, int number)
     led7(add, r, g, b);
 
     FastLED.show();
-  }
-  if (number == 6)
-  {
+    break;
+    case 6:
     led1(add, r, g, b);
     led2(add, 0, 0, 0);
     led3(add, r, g, b);
@@ -159,9 +152,9 @@ void display::numb(int display, int number)
     led6(add, r, g, b);
     led7(add, r, g, b);
     FastLED.show();
-  }
-  if (number == 7)
-  {
+    break;
+  
+  case 7:
     led1(add, r, g, b);
     led2(add, r, g, b);
     led3(add, r, g, b);
@@ -170,9 +163,8 @@ void display::numb(int display, int number)
     led6(add, 0, 0, 0);
     led7(add, 0, 0, 0);
     FastLED.show();
-  }
-  if (number == 8)
-  {
+  break;
+  case 8:
     led1(add, r, g, b);
     led2(add, r, g, b);
     led3(add, r, g, b);
@@ -181,9 +173,8 @@ void display::numb(int display, int number)
     led6(add, r, g, b);
     led7(add, r, g, b);
     FastLED.show();
-  }
-  if (number == 9)
-  {
+  break;
+  case 9:
     led1(add, r, g, b);
     led2(add, r, g, b);
     led3(add, r, g, b);
@@ -192,5 +183,13 @@ void display::numb(int display, int number)
     led6(add, r, g, b);
     led7(add, r, g, b);
     FastLED.show();
+  break;
+  default:
+    Serial.println("invalid number");
+    for(int i=0;i<22;i++){
+      leds[i].setRGB(255,0,0);
+      FastLED.show();
+    }
+    break;
   }
 }
