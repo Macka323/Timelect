@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
-#include "display.h"
+
 
 
 #define DATA_PIN 4
@@ -8,70 +8,68 @@
 CRGB leds[NUM_LEDS];
 
 
-
-int r = 0, g = 5, b = 0;
+//int r = 0, g = 5, b = 0;
 
 int x[5], c[9];
 char y;
 
 
-static class display:FastLED
+class Display
 {
-private:
-    //#define NUM_LEDS 147
-    // CRGB leds[NUM_LEDS];
 
 public:
     
     int r = 0, g = 5, b = 0;
-    void led1(int add, int r, int g, int b);
-    void led2(int add, int r, int g, int b);
-    void led3(int add, int r, int g, int b);
-    void led4(int add, int r, int g, int b);
-    void led5(int add, int r, int g, int b);
-    void led6(int add, int r, int g, int b);
-    void led7(int add, int r, int g, int b);
-    void numb(int display, int number);
+   void led1(int add, int r, int g, int b);
+   void led2(int add, int r, int g, int b);
+   void led3(int add, int r, int g, int b);
+   void led4(int add, int r, int g, int b);
+   void led5(int add, int r, int g, int b);
+   void led6(int add, int r, int g, int b);
+   void led7(int add, int r, int g, int b);
+   void numb(int display, int number);
     
-}
+};
 
-void display::led1(int add, int r, int g, int b)
+
+
+void Display::led1(int add, int r, int g, int b)
 {
   leds[19 - add].setRGB(r, g, b);
   leds[18 - add].setRGB(r, g, b);
 }
-void display::led2(int add, int r, int g, int b)
+void Display::led2(int add, int r, int g, int b)
 {
   leds[24 + add].setRGB(r, g, b);
   leds[59 - add].setRGB(r, g, b);
 }
-void display::led3(int add, int r, int g, int b)
+void Display::led3(int add, int r, int g, int b)
 {
   leds[108 + add].setRGB(r, g, b);
   leds[101 - add].setRGB(r, g, b);
 }
-void display::led4(int add, int r, int g, int b)
+void Display::led4(int add, int r, int g, int b)
 {
   leds[145 - add].setRGB(r, g, b);
   leds[144 - add].setRGB(r, g, b);
 }
-void display::led5(int add, int r, int g, int b)
+void Display::led5(int add, int r, int g, int b)
 {
   leds[104 - add].setRGB(r, g, b);
   leds[105 + add].setRGB(r, g, b);
 }
-void display::led6(int add, int r, int g, int b)
+void Display::led6(int add, int r, int g, int b)
 {
   leds[21 + add].setRGB(r, g, b);
   leds[62 - add].setRGB(r, g, b);
 }
-void display::led7(int add, int r, int g, int b)
+void Display::led7(int add, int r, int g, int b)
 {
   leds[64 + add].setRGB(r, g, b);
   leds[65 + add].setRGB(r, g, b);
 }
 
-void display::numb(int display, int number)
+void Display::numb(int display, int number)
 {
 
   int add;
@@ -235,7 +233,7 @@ void setup()
 {
   // put your setup code here, to run once:
   Serial.begin(38400);
-  pinMode(13, OUTPUT);
+  pinMode(2, OUTPUT);
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   
 }
@@ -243,18 +241,9 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
-
-  /*for (;;)
-  {
-    if (Serial.available() > 0)
-    {
-      break;
-    }
-  }
-*/
-  char index = Serial.read();
-
-  if (index == 'a')
+  Display Displayit;
+  
+  if (Serial.read() == 'a')
   {
     x[0] = Serial.read() - 48;
     x[1] = Serial.read() - 48;
@@ -268,8 +257,13 @@ void loop()
     Serial.println(x[2]);
     Serial.print("x4-");
     Serial.println(x[3]);
+  }else {
+    digitalWrite(2,HIGH);
+    delay(500);
+    digitalWrite(2,LOW);
+
   }
-  /*
+  
   if (Serial.read() == 'c')
   {
 
@@ -283,37 +277,38 @@ void loop()
     c[7] = Serial.read() - 48;
     c[8] = Serial.read() - 48;
 
-    display1.r = c[0] + c[1] * 10 + c[2] * 100;
-    display1.g = c[3] + c[4] * 10 + c[5] * 100;
-    display1.b = c[6] + c[7] * 10 + c[8] * 100;
+    Displayit.r = c[0] + c[1] * 10 + c[2] * 100;
+    Displayit.g = c[3] + c[4] * 10 + c[5] * 100;
+    Displayit.b = c[6] + c[7] * 10 + c[8] * 100;
 
     Serial.print("r = ");
-    Serial.println(r);
+    Serial.println(Displayit.r);
     Serial.print("g = ");
-    Serial.println(g);
+    Serial.println(Displayit.g);
     Serial.print("b = ");
-    Serial.println(b);
-  }*/
+    Serial.println(Displayit.b);
+  }
+  
   x[0] = 5;
   x[1] = 5;
   x[2] = 5;
   x[3] = 5;
 
-  display.numb(0, x[0]);
-  display.numb(1, x[1]);
-  display.numb(2, x[2]);
-  display.numb(3, x[3]);
+  Displayit.numb(0, x[0]);
+  Displayit.numb(1, x[1]);
+  Displayit.numb(2, x[2]);
+  Displayit.numb(3, x[3]);
 
-  /*for (int i = 10; i < 136; i += 21)
+  for (int i = 10; i < 136; i += 21)
   {
     for (int a = 0; a < 10; a++)
     {
       leds[i].setRGB(0, 0, 0);
       FastLED.show();
       delay(500);
-      leds[i].setRGB(r, g, b);
+      leds[i].setRGB(Displayit.r, Displayit.g, Displayit.b);
       FastLED.show();
       delay(500);
     }
-  }*/
+  }
 }
