@@ -103,8 +103,8 @@ void Display::numb(int display, int number)
     add = 12;
     break;
   case 3:
-    break;
     add = 17;
+    break;
   }
 
   //int r=0,g=5,b=0;
@@ -227,7 +227,7 @@ void Display::numb(int display, int number)
   }
 }
 
-
+int loopTimers=0;
 
 void setup()
 {
@@ -240,6 +240,9 @@ void setup()
 
 void loop()
 {
+  loopTimers++;
+    Serial.print("start lolllolol       ");
+    Serial.println(loopTimers);
   // put your main code here, to run repeatedly:
   Display Displayit;
   
@@ -257,11 +260,6 @@ void loop()
     Serial.println(x[2]);
     Serial.print("x4-");
     Serial.println(x[3]);
-  }else {
-    digitalWrite(2,HIGH);
-    delay(500);
-    digitalWrite(2,LOW);
-
   }
   
   if (Serial.read() == 'c')
@@ -288,7 +286,7 @@ void loop()
     Serial.print("b = ");
     Serial.println(Displayit.b);
   }
-  
+
   x[0] = 5;
   x[1] = 5;
   x[2] = 5;
@@ -299,7 +297,7 @@ void loop()
   Displayit.numb(2, x[2]);
   Displayit.numb(3, x[3]);
 
-  for (int i = 10; i < 136; i += 21)
+  /*for (int i = 10; i < 136; i += 21)
   {
     for (int a = 0; a < 10; a++)
     {
@@ -310,5 +308,6 @@ void loop()
       FastLED.show();
       delay(500);
     }
-  }
+  }*/
+    Serial.println("end lolo");
 }
