@@ -1,6 +1,6 @@
-#include <Arduino.h>
+
 #include <FastLED.h>
-#include "display.h"
+
 
 #define DATA_PIN 4
 #define NUM_LEDS 147
@@ -11,7 +11,7 @@ int r = 0, g = 5, b = 0;
 int x[5], c[9];
 char y;
 
-display display1;
+
 
 void setup()
 {
@@ -26,14 +26,14 @@ void loop()
   // put your main code here, to run repeatedly:
 
   /*for (;;)
-  {
+    {
     if (Serial.available() > 0)
     {
       break;
     }
-  }
-*/
-char index = Serial.read();
+    }
+  */
+  char index = Serial.read();
 
   if (index == 'a')
   {
@@ -50,9 +50,9 @@ char index = Serial.read();
     Serial.print("x4-");
     Serial.println(x[3]);
   }
-/*
-  if (Serial.read() == 'c')
-  {
+  /*
+    if (Serial.read() == 'c')
+    {
 
     c[0] = Serial.read() - 48;
     c[1] = Serial.read() - 48;
@@ -74,19 +74,19 @@ char index = Serial.read();
     Serial.println(g);
     Serial.print("b = ");
     Serial.println(b);
-  }*/
-x[0]=5;
-x[1]=5;
-x[2]=5;
-x[3]=5;
-
-  display1.numb(0, x[0]);
-  display1.numb(1, x[1]);
-  display1.numb(2, x[2]);
-  display1.numb(3, x[3]);
+    }
+  x[0] = 5;
+  x[1] = 5;
+  x[2] = 5;
+  x[3] = 5;
+*/
+  numb(0, x[0]);
+  numb(1, x[1]);
+  numb(2, x[2]);
+  numb(3, x[3]);
 
   /*for (int i = 10; i < 136; i += 21)
-  {
+    {
     for (int a = 0; a < 10; a++)
     {
       leds[i].setRGB(0, 0, 0);
@@ -96,5 +96,5 @@ x[3]=5;
       FastLED.show();
       delay(500);
     }
-  }*/
+    }*/
 }

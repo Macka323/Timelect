@@ -1,12 +1,13 @@
-#include "FastLED.h"
 
-class display
+
+static class display:FastLED
 {
 private:
-#define NUM_LEDS 147
-    CRGB leds[NUM_LEDS];
+    //#define NUM_LEDS 147
+    // CRGB leds[NUM_LEDS];
 
 public:
+    
     int r = 0, g = 5, b = 0;
     void led1(int add, int r, int g, int b);
     void led2(int add, int r, int g, int b);
@@ -16,4 +17,5 @@ public:
     void led6(int add, int r, int g, int b);
     void led7(int add, int r, int g, int b);
     void numb(int display, int number);
-};
+    
+}

@@ -143,7 +143,7 @@ void display::numb(int display, int number)
 
     FastLED.show();
     break;
-    case 6:
+  case 6:
     led1(add, r, g, b);
     led2(add, 0, 0, 0);
     led3(add, r, g, b);
@@ -153,7 +153,7 @@ void display::numb(int display, int number)
     led7(add, r, g, b);
     FastLED.show();
     break;
-  
+
   case 7:
     led1(add, r, g, b);
     led2(add, r, g, b);
@@ -163,7 +163,7 @@ void display::numb(int display, int number)
     led6(add, 0, 0, 0);
     led7(add, 0, 0, 0);
     FastLED.show();
-  break;
+    break;
   case 8:
     led1(add, r, g, b);
     led2(add, r, g, b);
@@ -173,7 +173,7 @@ void display::numb(int display, int number)
     led6(add, r, g, b);
     led7(add, r, g, b);
     FastLED.show();
-  break;
+    break;
   case 9:
     led1(add, r, g, b);
     led2(add, r, g, b);
@@ -183,11 +183,12 @@ void display::numb(int display, int number)
     led6(add, r, g, b);
     led7(add, r, g, b);
     FastLED.show();
-  break;
+    break;
   default:
     Serial.println("invalid number");
-    for(int i=0;i<22;i++){
-      leds[i].setRGB(255,0,0);
+    for (int i = 0; i < 22; i++)
+    {
+      leds[i].setRGB(255, 0, 0);
       FastLED.show();
     }
     break;
