@@ -1,6 +1,13 @@
 #include <Arduino.h>
 #include <FastLED.h>
+#include <WiFi.h>
+#include "time.h"
 
+const char* ssid       = "Galaxy A40";
+const char* password   = "modecom32";
+
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 3600;
 
 
 #define DATA_PIN 4
@@ -12,6 +19,32 @@ CRGB leds[NUM_LEDS];
 
 int x[5], c[9];
 char y;
+
+
+const int   daylightOffset_sec = 3600;
+
+void printLocalTime()
+{
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  Serial.println(&timeinfo, "%H:%M:%S");
+  x[0]=timeinfo.tm_hour/10;
+  x[1]=timeinfo.tm_hour%10;
+  x[2]=timeinfo.tm_min/10;
+  x[3]=timeinfo.tm_min%10;
+    Serial.print("x1-");
+    Serial.println(x[0]);
+    Serial.print("x2-");
+    Serial.println(x[1]);
+    Serial.print("x3-");
+    Serial.println(x[2]);
+    Serial.print("x4-");
+    Serial.println(x[3]);
+    delay(500);
+}
 
 
 class Display
@@ -234,17 +267,32 @@ void setup()
   Serial.begin(115200);
   pinMode(2, OUTPUT);
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+  Serial.printf("Connecting to %s ", ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+  }
+  Serial.println(" CONNECTED");
   
+  //init and get the time
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  printLocalTime();
+
+  //disconnect WiFi as it's no longer needed
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_OFF);
 }
 
 void loop()
 {
-    // put your main code here, to run repeatedly:
-  Display Displayit;
+   
+  Display Displayit; // object from the class display to display the numbers
 
+  printLocalTime();
 
-  
-  if (Serial.read() == 'a')
+  /* 
+  if (Serial.read() == 'a') // the input for the time a'hhmm'
   {
     delay(10);
     x[0] = Serial.read() - 48;
@@ -261,7 +309,7 @@ void loop()
     Serial.println(x[3]);
   }
   
-  if (Serial.read() == 'c')
+  if (Serial.read() == 'c') // input for the colur c'r''g''b''  values from 0 too 255 
   {
     delay(10);
     c[0] = Serial.read() - 48;
@@ -285,6 +333,8 @@ void loop()
     Serial.print("b = ");
     Serial.println(Displayit.b);
   }
+
+  */
 
  // x[0] = 5;
  // x[1] = 5;
