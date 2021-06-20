@@ -130,7 +130,7 @@ void Display::numb(int display, int number)
     led6(add, 0, 0, 0);
     led7(add, 0, 0, 0);
     FastLED.show();
-
+ break;
   case 2:
     led1(add, r, g, b);
     led2(add, r, g, b);
@@ -218,7 +218,7 @@ void Display::numb(int display, int number)
     break;
   default:
     Serial.println("invalid number");
-    for (int i = 0; i < 22; i++)
+    for (int i = 0; i < 21; i++)
     {
       leds[i].setRGB(255, 0, 0);
       FastLED.show();
@@ -227,12 +227,11 @@ void Display::numb(int display, int number)
   }
 }
 
-int loopTimers=0;
 
 void setup()
 {
   // put your setup code here, to run once:
-  Serial.begin(38400);
+  Serial.begin(115200);
   pinMode(2, OUTPUT);
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   
@@ -240,14 +239,14 @@ void setup()
 
 void loop()
 {
-  loopTimers++;
-    Serial.print("start lolllolol       ");
-    Serial.println(loopTimers);
-  // put your main code here, to run repeatedly:
+    // put your main code here, to run repeatedly:
   Display Displayit;
+
+
   
   if (Serial.read() == 'a')
   {
+    delay(10);
     x[0] = Serial.read() - 48;
     x[1] = Serial.read() - 48;
     x[2] = Serial.read() - 48;
@@ -264,7 +263,7 @@ void loop()
   
   if (Serial.read() == 'c')
   {
-
+    delay(10);
     c[0] = Serial.read() - 48;
     c[1] = Serial.read() - 48;
     c[2] = Serial.read() - 48;
@@ -287,10 +286,10 @@ void loop()
     Serial.println(Displayit.b);
   }
 
-  x[0] = 5;
-  x[1] = 5;
-  x[2] = 5;
-  x[3] = 5;
+ // x[0] = 5;
+ // x[1] = 5;
+ // x[2] = 5;
+ // x[3] = 5;
 
   Displayit.numb(0, x[0]);
   Displayit.numb(1, x[1]);
@@ -309,5 +308,5 @@ void loop()
       delay(500);
     }
   }*/
-    Serial.println("end lolo");
+   
 }
