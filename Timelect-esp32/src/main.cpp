@@ -3,7 +3,7 @@
 #include <WiFi.h>
 #include "time.h"
 
-const char* ssid       = "Galaxy A40";
+const char* ssid       = "dd-wrt";
 const char* password   = "modecom32";
 
 const char* ntpServer = "pool.ntp.org";
@@ -19,6 +19,7 @@ CRGB leds[NUM_LEDS];
 
 int x[5], c[9];
 char y;
+int errorUnobtainedTime[60] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,41,42};
 
 
 const int   daylightOffset_sec = 3600;
@@ -28,6 +29,11 @@ void printLocalTime()
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
+    for (int i = 0; i < 60 ; i++)
+    {
+      leds[errorUnobtainedTime[i]].setRGB(255,0,0);
+    }
+    
     return;
   }
   Serial.println(&timeinfo, "%H:%M:%S");
