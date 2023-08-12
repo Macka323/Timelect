@@ -3,14 +3,19 @@
 #include <WiFi.h>
 #include "time.h"
 
+
 const char* ssid       = "dd-wrt";
 const char* password   = "modecom32";
+// Set web server port number to 80
+WiFiServer server(80);
+// Variable to store the HTTP request
+String header;
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
 
 
-#define DATA_PIN 4
+#define DATA_PIN 13
 #define NUM_LEDS 147
 CRGB leds[NUM_LEDS];
 
