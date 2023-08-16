@@ -1,373 +1,154 @@
 #include <Arduino.h>
-#include <FastLED.h>
 #include <WiFi.h>
-#include "time.h"
 
+// Replace with your network credentials
+const char* ssid = "dd-wrt";
+const char* password = "modecom32";
 
-const char* ssid       = "dd-wrt";
-const char* password   = "modecom32";
 // Set web server port number to 80
 WiFiServer server(80);
+
 // Variable to store the HTTP request
 String header;
 
-const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 3600;
+// Auxiliar variables to store the current output state
+String output26State = "off";
+String output27State = "off";
 
+// Assign output variables to GPIO pins
+const int output26 = 26;
+const int output27 = 27;
 
-#define DATA_PIN 13
-#define NUM_LEDS 147
-CRGB leds[NUM_LEDS];
+String pin = "";
 
+// Current time
+unsigned long currentTime = millis();
+// Previous time
+unsigned long previousTime = 0; 
+// Define timeout time in milliseconds (example: 2000ms = 2s)
+const long timeoutTime = 2000;
 
-//int r = 0, g = 5, b = 0;
-
-int x[5], c[9];
-char y;
-int errorUnobtainedTime[60] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,41,42};
-
-
-const int   daylightOffset_sec = 3600;
-
-void printLocalTime()
-{
-  struct tm timeinfo;
-  if(!getLocalTime(&timeinfo)){
-    Serial.println("Failed to obtain time");
-    for (int i = 0; i < 60 ; i++)
-    {
-      leds[errorUnobtainedTime[i]].setRGB(255,0,0);
-    }
-    
-    return;
-  }
-  Serial.println(&timeinfo, "%H:%M:%S");
-  x[0]=timeinfo.tm_hour/10;
-  x[1]=timeinfo.tm_hour%10;
-  x[2]=timeinfo.tm_min/10;
-  x[3]=timeinfo.tm_min%10;
-    Serial.print("x1-");
-    Serial.println(x[0]);
-    Serial.print("x2-");
-    Serial.println(x[1]);
-    Serial.print("x3-");
-    Serial.println(x[2]);
-    Serial.print("x4-");
-    Serial.println(x[3]);
-    delay(500);
-}
-
-
-class Display
-{
-
-public:
-    
-    int r = 0, g = 5, b = 0;
-   void led1(int add, int r, int g, int b);
-   void led2(int add, int r, int g, int b);
-   void led3(int add, int r, int g, int b);
-   void led4(int add, int r, int g, int b);
-   void led5(int add, int r, int g, int b);
-   void led6(int add, int r, int g, int b);
-   void led7(int add, int r, int g, int b);
-   void numb(int display, int number);
-    
-};
-
-
-
-void Display::led1(int add, int r, int g, int b)
-{
-  leds[19 - add].setRGB(r, g, b);
-  leds[18 - add].setRGB(r, g, b);
-}
-void Display::led2(int add, int r, int g, int b)
-{
-  leds[24 + add].setRGB(r, g, b);
-  leds[59 - add].setRGB(r, g, b);
-}
-void Display::led3(int add, int r, int g, int b)
-{
-  leds[108 + add].setRGB(r, g, b);
-  leds[101 - add].setRGB(r, g, b);
-}
-void Display::led4(int add, int r, int g, int b)
-{
-  leds[145 - add].setRGB(r, g, b);
-  leds[144 - add].setRGB(r, g, b);
-}
-void Display::led5(int add, int r, int g, int b)
-{
-  leds[104 - add].setRGB(r, g, b);
-  leds[105 + add].setRGB(r, g, b);
-}
-void Display::led6(int add, int r, int g, int b)
-{
-  leds[21 + add].setRGB(r, g, b);
-  leds[62 - add].setRGB(r, g, b);
-}
-void Display::led7(int add, int r, int g, int b)
-{
-  leds[64 + add].setRGB(r, g, b);
-  leds[65 + add].setRGB(r, g, b);
-}
-
-void Display::numb(int display, int number)
-{
-
-  int add;
-
-  /*if (display == 0)
-  {
-    add = 0;
-  }
-  if (display == 1)
-  {
-    add = 5;
-  }
-  if (display == 2)
-  {
-    add = 12;
-  }
-  if (display == 3)
-  {
-    add = 17;
-  }*/
-
-  switch (display)
-  {
-  case 0:
-    add = 0;
-    break;
-  case 1:
-    add = 5;
-    break;
-  case 2:
-    add = 12;
-    break;
-  case 3:
-    add = 17;
-    break;
-  }
-
-  //int r=0,g=5,b=0;
-  switch (number)
-  {
-  case 0:
-    led1(add, r, g, b);
-    led2(add, r, g, b);
-    led3(add, r, g, b);
-    led4(add, r, g, b);
-    led5(add, r, g, b);
-    led6(add, r, g, b);
-    led7(add, 0, 0, 0);
-    FastLED.show();
-    break;
-
-  case 1:
-    led1(add, 0, 0, 0);
-    led2(add, r, g, b);
-    led3(add, r, g, b);
-    led4(add, 0, 0, 0);
-    led5(add, 0, 0, 0);
-    led6(add, 0, 0, 0);
-    led7(add, 0, 0, 0);
-    FastLED.show();
- break;
-  case 2:
-    led1(add, r, g, b);
-    led2(add, r, g, b);
-    led3(add, 0, 0, 0);
-    led4(add, r, g, b);
-    led5(add, r, g, b);
-    led6(add, 0, 0, 0);
-    led7(add, r, g, b);
-    FastLED.show();
-    break;
-
-  case 3:
-    led1(add, r, g, b);
-    led2(add, r, g, b);
-    led3(add, r, g, b);
-    led4(add, r, g, b);
-    led5(add, 0, 0, 0);
-    led6(add, 0, 0, 0);
-    led7(add, r, g, b);
-    FastLED.show();
-    break;
-
-  case 4:
-    led1(add, 0, 0, 0);
-    led2(add, r, g, b);
-    led3(add, r, g, b);
-    led4(add, 0, 0, 0);
-    led5(add, 0, 0, 0);
-    led6(add, r, g, b);
-    led7(add, r, g, b);
-
-    FastLED.show();
-    break;
-  case 5:
-    led1(add, r, g, b);
-    led2(add, 0, 0, 0);
-    led3(add, r, g, b);
-    led4(add, r, g, b);
-    led5(add, 0, 0, 0);
-    led6(add, r, g, b);
-    led7(add, r, g, b);
-
-    FastLED.show();
-    break;
-  case 6:
-    led1(add, r, g, b);
-    led2(add, 0, 0, 0);
-    led3(add, r, g, b);
-    led4(add, r, g, b);
-    led5(add, r, g, b);
-    led6(add, r, g, b);
-    led7(add, r, g, b);
-    FastLED.show();
-    break;
-
-  case 7:
-    led1(add, r, g, b);
-    led2(add, r, g, b);
-    led3(add, r, g, b);
-    led4(add, 0, 0, 0);
-    led5(add, 0, 0, 0);
-    led6(add, 0, 0, 0);
-    led7(add, 0, 0, 0);
-    FastLED.show();
-    break;
-  case 8:
-    led1(add, r, g, b);
-    led2(add, r, g, b);
-    led3(add, r, g, b);
-    led4(add, r, g, b);
-    led5(add, r, g, b);
-    led6(add, r, g, b);
-    led7(add, r, g, b);
-    FastLED.show();
-    break;
-  case 9:
-    led1(add, r, g, b);
-    led2(add, r, g, b);
-    led3(add, r, g, b);
-    led4(add, r, g, b);
-    led5(add, 0, 0, 0);
-    led6(add, r, g, b);
-    led7(add, r, g, b);
-    FastLED.show();
-    break;
-  default:
-    Serial.println("invalid number");
-    for (int i = 0; i < 21; i++)
-    {
-      leds[i].setRGB(255, 0, 0);
-      FastLED.show();
-    }
-    break;
-  }
-}
-
-
-void setup()
-{
-  // put your setup code here, to run once:
+void setup() {
   Serial.begin(115200);
-  pinMode(2, OUTPUT);
-  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-  Serial.printf("Connecting to %s ", ssid);
+  // Initialize the output variables as outputs
+  pinMode(output26, OUTPUT);
+  pinMode(output27, OUTPUT);
+  // Set outputs to LOW
+  digitalWrite(output26, LOW);
+  digitalWrite(output27, LOW);
+
+  // Connect to Wi-Fi network with SSID and password
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
+    delay(500);
+    Serial.print(".");
   }
-  Serial.println(" CONNECTED");
-  
-  //init and get the time
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  printLocalTime();
-
-  //disconnect WiFi as it's no longer needed
-  WiFi.disconnect(true);
-  WiFi.mode(WIFI_OFF);
+  // Print local IP address and start web server
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
 }
 
-void loop()
-{
-   
-  Display Displayit; // object from the class display to display the numbers
+void loop(){
+  WiFiClient client = server.available();   // Listen for incoming clients
 
-  printLocalTime();
-
-  /* 
-  if (Serial.read() == 'a') // the input for the time a'hhmm'
-  {
-    delay(10);
-    x[0] = Serial.read() - 48;
-    x[1] = Serial.read() - 48;
-    x[2] = Serial.read() - 48;
-    x[3] = Serial.read() - 48;
-    Serial.print("x1-");
-    Serial.println(x[0]);
-    Serial.print("x2-");
-    Serial.println(x[1]);
-    Serial.print("x3-");
-    Serial.println(x[2]);
-    Serial.print("x4-");
-    Serial.println(x[3]);
-  }
-  
-  if (Serial.read() == 'c') // input for the colur c'r''g''b''  values from 0 too 255 
-  {
-    delay(10);
-    c[0] = Serial.read() - 48;
-    c[1] = Serial.read() - 48;
-    c[2] = Serial.read() - 48;
-    c[3] = Serial.read() - 48;
-    c[4] = Serial.read() - 48;
-    c[5] = Serial.read() - 48;
-    c[6] = Serial.read() - 48;
-    c[7] = Serial.read() - 48;
-    c[8] = Serial.read() - 48;
-
-    Displayit.r = c[0] + c[1] * 10 + c[2] * 100;
-    Displayit.g = c[3] + c[4] * 10 + c[5] * 100;
-    Displayit.b = c[6] + c[7] * 10 + c[8] * 100;
-
-    Serial.print("r = ");
-    Serial.println(Displayit.r);
-    Serial.print("g = ");
-    Serial.println(Displayit.g);
-    Serial.print("b = ");
-    Serial.println(Displayit.b);
-  }
-
-  */
-
- // x[0] = 5;
- // x[1] = 5;
- // x[2] = 5;
- // x[3] = 5;
-
-  Displayit.numb(0, x[0]);
-  Displayit.numb(1, x[1]);
-  Displayit.numb(2, x[2]);
-  Displayit.numb(3, x[3]);
-
-  /*for (int i = 10; i < 136; i += 21)
-  {
-    for (int a = 0; a < 10; a++)
-    {
-      leds[i].setRGB(0, 0, 0);
-      FastLED.show();
-      delay(500);
-      leds[i].setRGB(Displayit.r, Displayit.g, Displayit.b);
-      FastLED.show();
-      delay(500);
+  if (client) {                             // If a new client connects,
+    currentTime = millis();
+    previousTime = currentTime;
+    Serial.println("New Client.");          // print a message out in the serial port
+    String currentLine = "";                // make a String to hold incoming data from the client
+    while (client.connected() && currentTime - previousTime <= timeoutTime) {  // loop while the client's connected
+      currentTime = millis();
+      if (client.available()) {             // if there's bytes to read from the client,
+        char c = client.read();             // read a byte, then
+        Serial.write(c);                    // print it out the serial monitor
+        header += c;
+        if (c == '\n') {                    // if the byte is a newline character
+          // if the current line is blank, you got two newline characters in a row.
+          // that's the end of the client HTTP request, so send a response:
+          if (currentLine.length() == 0) {
+            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+            // and a content-type so the client knows what's coming, then a blank line:
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+            int charNumber=1;
+            pin =header[header.indexOf("GET /setPixel/")+charNumber];
+            // turns the GPIOs on and off
+            if (header.indexOf("GET /26/on") >= 0) {
+              Serial.println("GPIO 26 on");
+              output26State = "on";
+              digitalWrite(output26, HIGH);
+            } else if (header.indexOf("GET /26/off") >= 0) {
+              Serial.println("GPIO 26 off");
+              output26State = "off";
+              digitalWrite(output26, LOW);
+            } else if (header.indexOf("GET /27/on") >= 0) {
+              Serial.println("GPIO 27 on");
+              output27State = "on";
+              digitalWrite(output27, HIGH);
+            } else if (header.indexOf("GET /27/off") >= 0) {
+              Serial.println("GPIO 27 off");
+              output27State = "off";
+              digitalWrite(output27, LOW);
+            }
+            
+            // Display the HTML web page
+            client.println("<!DOCTYPE html><html>");
+            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            client.println("<link rel=\"icon\" href=\"data:,\">");
+            // CSS to style the on/off buttons 
+            // Feel free to change the background-color and font-size attributes to fit your preferences
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button2 {background-color: #555555;}</style></head>");
+            
+            // Web Page Heading
+            client.println("<body><h1>ESP32 Web Server</h1>");
+            client.println("<h1>pixel "+pin+"</h1>");
+            
+            // Display current state, and ON/OFF buttons for GPIO 26  
+            client.println("<p>GPIO 26 - State " + output26State + "</p>");
+            // If the output26State is off, it displays the ON button       
+            if (output26State=="off") {
+              client.println("<p><a href=\"/26/on\"><button class=\"button\">ON</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/26/off\"><button class=\"button button2\">OFF</button></a></p>");
+            } 
+               
+            // Display current state, and ON/OFF buttons for GPIO 27  
+            client.println("<p>GPIO 27 - State " + output27State + "</p>");
+            // If the output27State is off, it displays the ON button       
+            if (output27State=="off") {
+              client.println("<p><a href=\"/27/on\"><button class=\"button\">ON</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/27/off\"><button class=\"button button2\">OFF</button></a></p>");
+            }
+            client.println("</body></html>");
+            
+            // The HTTP response ends with another blank line
+            client.println();
+            // Break out of the while loop
+            break;
+          } else { // if you got a newline, then clear currentLine
+            currentLine = "";
+          }
+        } else if (c != '\r') {  // if you got anything else but a carriage return character,
+          currentLine += c;      // add it to the end of the currentLine
+        }
+      }
     }
-  }*/
-   
+    // Clear the header variable
+    header = "";
+    // Close the connection
+    client.stop();
+    Serial.println("Client disconnected.");
+    Serial.println("");
+  }
 }
