@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <Preferences.h>
 #include <WiFi.h>
 #include "FastLED.h"
 
@@ -6,9 +7,11 @@
 
 CRGB leds[NUM_LEDS];
 
+Preferences preferences;
+
 // Replace with your network credentials
-const char *ssid = "dd-wrt";
-const char *password = "modecom32";
+char *ssid = NULL;
+char *password = NULL;
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -31,8 +34,46 @@ unsigned long previousTime = 0;
 // Define timeout time in milliseconds (example: 2000ms = 2s)
 const long timeoutTime = 2000;
 
+bool ChangeWIFISettings()
+{
+  while (Serial.available() > 0)
+  {
+    char in = Serial.read();
+
+    Serial.println(in);
+    if (in == 'W')
+    {
+
+      // Serial.read();
+      String lssid = Serial.readStringUntil(';');
+      Serial.print(lssid);
+      if (strcmp(lssid.c_str(), ssid) != 0)
+      {
+        preferences.putString("ssid", lssid.c_str());
+      }
+    }
+    if (in == 'P')
+    {
+
+      // Serial.read();
+      String lpass = Serial.readStringUntil(';');
+
+      Serial.print(lpass);
+      if (strcmp(lpass.c_str(), password) != 0)
+      {
+        preferences.putString("password", lpass);
+        preferences.end();
+        ESP.restart();
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
 void setup()
 {
+
   Serial.begin(115200);
   // Initialize the output variables as outputs
   pinMode(output26, OUTPUT);
@@ -41,23 +82,37 @@ void setup()
   digitalWrite(output26, LOW);
   digitalWrite(output27, LOW);
 
+  preferences.begin("credentials", false);
+
+  String Sssid = preferences.getString("ssid", "defssid");
+  String Spass = preferences.getString("password", "defpassssss");
+  ssid = (char *)&Sssid;
+  password = (char *)&Spass;
+
   // Connect to Wi-Fi network with SSID and password
-  Serial.print("Connecting to ");
+  Serial.println("Connecting to ");
   Serial.println(ssid);
+  Serial.println(password);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(500);
-    Serial.print(".");
+    if (Serial.available() > 0)
+    {
+      ChangeWIFISettings();
+    }
+    else
+    {
+      delay(500);
+    }
   }
   // Print local IP address and start web server
-  Serial.println("");
   Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
+  Serial.print("IP address:");
   Serial.println(WiFi.localIP());
   server.begin();
 
   FastLED.addLeds<NEOPIXEL, 13>(leds, NUM_LEDS);
+  preferences.end();
 }
 
 void loop()
