@@ -28,10 +28,32 @@ int coordinatesToLed(int x, int y)
   }
   else
   {
-    a = (x + 1) * 21 - y-1;
+    a = (x + 1) * 21 - y - 1;
   }
   return a;
 }
+
+struct Point
+{
+  int x;
+  int y;
+};
+
+Point LedtoCoordinates(int a)
+{
+  Point p;
+  p.x = ((a-1) / 21);
+  if (p.x % 2 == 0)
+  {
+    p.y = (a-1) % 21;
+  }
+  else
+  {
+    p.y = 21 - (a-1) % 21;
+  }
+  return p;
+}
+
 
 void setup()
 {
@@ -79,7 +101,6 @@ void loop()
 
     // an http request ends with a blank line
 
-   
     while (client.connected())
     {
 
@@ -106,7 +127,7 @@ void loop()
           int r = charsToint(get[21], get[22], get[23]);
           int g = charsToint(get[25], get[26], get[27]);
           int b = charsToint(get[29], get[30], get[31]);
-          leds[coordinatesToLed(x,y)].setRGB(r, g, b);
+          leds[coordinatesToLed(x, y)].setRGB(r, g, b);
           FastLED.show();
         }
         // connect/1234
