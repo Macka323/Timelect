@@ -9,6 +9,9 @@ bool AtLeastOneDeviceConnected = false;
 #define DATA_PIN 25
 CRGB leds[NUM_LEDS];
 
+#define MaxClients 5
+WiFiClient *clients[5] = {NULL};
+
 WiFiServer server(80);
 AsyncUDP udp;
 
@@ -100,14 +103,96 @@ void setup()
 void loop()
 {
   WiFiClient client = server.available();
+
   if (client)
+  {
+    // check if its allready connected
+    Serial.println("new client");
+    bool isConnected = false;
+    for (int i = 0; i < MaxClients; i++)
+    {
+      if (clients[i] != NULL)
+      {
+        if (client.remoteIP() == clients[i]->remoteIP() &&client.remotePort()==clients[i]->remotePort())
+          isConnected = true;
+      }
+    }
+    // if its not connect it
+    if (!isConnected)
+      for (int i = 0; i < MaxClients; i++)
+      {
+        if (clients[i] == NULL || !clients[i]->connected())
+        {
+          clients[i] = new WiFiClient(client);
+          Serial.println("client added to the array");
+          break;
+        }
+      }
+  }
+  else
+  {
+    // delete old disconnected clients
+    for (int i = 0; i < MaxClients; i++)
+    {
+      if (clients[i] != NULL)
+      {
+        if (!(clients[i]->connected()))
+        {
+          delete clients[i];
+          clients[i] = NULL;
+          Serial.println("deleted or client disconnected");
+        }
+      }
+    }
+  }
+
+  for (int i = 0; i < MaxClients; i++)
+  {
+    if (clients[i] != NULL && clients[i]->available())
+    {
+      byte recived[10];
+
+      
+      int read = clients[i]->readBytesUntil(255,recived,10);;
+      // client.println();
+      Serial.write(recived, read);
+      Serial.println();
+
+      // setPixel/x05y16r000g255b000
+      if (recived[0] == 's' && recived[1] == 'p')
+      {
+        int x = recived[2]; // charsToint('0', get[15], get[16]);
+        int y = recived[3]; // charsToint('0', get[18], get[19]);
+        int r = recived[4]; // charsToint(get[21], get[22], get[23]);
+        int g = recived[5]; // charsToint(get[25], get[26], get[27]);
+        int b = recived[6]; // charsToint(get[29], get[30], get[31]);
+        leds[coordinatesToLed(x, y)].setRGB(r, g, b);
+        FastLED.show();
+      }
+      // co1234
+      if (recived[0] == 'c' && recived[1] == 'o')
+      {
+
+        int a = recived[2] + recived[3] + recived[4] + recived[5];
+        clients[i]->print(a);
+        Serial.println(a);
+        // AtLeastOneDeviceConnected = true;
+      }
+    }
+  }
+
+  // give the web browser time to receive the data
+
+  delay(1);
+
+  /*if (client)
   {
     while (client.connected())
     {
       if (client.available())
       {
         byte recived[10];
-        
+
         int read = client.readBytes(recived, 7);
         // client.println();
         Serial.write(recived, 30);
@@ -144,6 +229,5 @@ void loop()
     // client.stop();
     // client.stop();
 
-    // Serial.println("client disconnected");
-  }
+    // Serial.println("client disconnected");*/
 }
