@@ -3,7 +3,6 @@
 #include "AsyncUDP.h"
 #include <FastLED.h>
 
-bool AtLeastOneDeviceConnected = false;
 // How many leds in your strip?
 #define NUM_LEDS 147
 #define DATA_PIN 25
@@ -11,18 +10,11 @@ CRGB leds[NUM_LEDS];
 
 #define MaxClients 5
 WiFiClient *clients[5] = {NULL};
+#define CommandBufferSize 10
+int RequestNumber = 0;
 
 WiFiServer server(80);
 AsyncUDP udp;
-
-// put function declarations here:
-int charsToint(char a, char b, char c)
-{
-  int num = (a - '0') * 100;
-  num += (b - '0') * 10;
-  num += c - '0';
-  return num;
-}
 
 int coordinatesToLed(int x, int y)
 {
@@ -57,6 +49,85 @@ Point LedtoCoordinates(int a)
     p.y = 21 - (a - 1) % 21;
   }
   return p;
+}
+
+void echoCommand(int originDevice, byte *data, int lenght)
+{
+  // end command
+  data[lenght++] = 255;
+  for (int i = 0; i < MaxClients; i++)
+  {
+    if (clients[i] != NULL && clients[i]->connected())
+    {
+      if (i != originDevice)
+        clients[i]->write(data, lenght);
+    }
+  }
+}
+
+/// @brief
+/// @param a
+/// @param arr
+/// @param offset form where to write the digits
+/// @param lenght
+void intToByteArr(int a, byte *arr, int offset, int &lenght)
+{
+  int i = 0;
+  while (a / 10 != 0)
+  {
+    arr[i + offset] = a % 10;
+    a = a / 10;
+    i++;
+  }
+  arr[i + offset] = a % 10;
+  a = a / 10;
+  i++;
+
+  lenght = i;
+
+  // flip
+  for (int i = 0; i < lenght / 2; i++)
+  {
+    int pom = arr[i + offset];
+    arr[i + offset] = arr[lenght - i];
+    arr[lenght - i] = pom;
+  }
+}
+
+void SendRequestNumberV1()
+{
+  for (int i = 0; i < MaxClients; i++)
+  {
+    if (clients[i] != NULL && clients[i]->connected())
+    {
+      byte loll[15];
+      loll[0] = 'r';
+      loll[1] = 'n';
+      int lenght=0;
+      intToByteArr(RequestNumber,loll,2,lenght);
+      loll[lenght+2]=255;
+      clients[i]->write(loll,lenght+3);
+    }
+  }
+}
+void SendRequestNumberV2()
+{
+  for (int i = 0; i < MaxClients; i++)
+  {
+    if (clients[i] != NULL && clients[i]->connected())
+    {
+      byte * rn = (byte*)&RequestNumber;
+      byte loll[15];
+      loll[0] = 'r';
+      loll[1] = 'n';
+      loll[2] = rn[0];
+      loll[3] = rn[1];
+      loll[4] = rn[2];
+      loll[5] = rn[3];
+      loll[6] = (byte)255;
+      clients[i]->write(loll,7);
+    }
+  }
 }
 
 void setup()
@@ -113,7 +184,7 @@ void loop()
     {
       if (clients[i] != NULL)
       {
-        if (client.remoteIP() == clients[i]->remoteIP() &&client.remotePort()==clients[i]->remotePort())
+        if (client.remoteIP() == clients[i]->remoteIP() && client.remotePort() == clients[i]->remotePort())
           isConnected = true;
       }
     }
@@ -150,10 +221,10 @@ void loop()
   {
     if (clients[i] != NULL && clients[i]->available())
     {
-      byte recived[10];
+      byte recived[CommandBufferSize];
 
-      
-      int read = clients[i]->readBytesUntil(255,recived,10);;
+      int read = clients[i]->readBytesUntil(255, recived, CommandBufferSize);
+
       // client.println();
       Serial.write(recived, read);
       Serial.println();
@@ -168,6 +239,8 @@ void loop()
         int b = recived[6]; // charsToint(get[29], get[30], get[31]);
         leds[coordinatesToLed(x, y)].setRGB(r, g, b);
         FastLED.show();
+        echoCommand(i, recived, read);
+        SendRequestNumberV1();
       }
       // co1234
       if (recived[0] == 'c' && recived[1] == 'o')
@@ -176,58 +249,8 @@ void loop()
         int a = recived[2] + recived[3] + recived[4] + recived[5];
         clients[i]->print(a);
         Serial.println(a);
-        // AtLeastOneDeviceConnected = true;
       }
     }
   }
-
-  // give the web browser time to receive the data
-
   delay(1);
-
-  /*if (client)
-  {
-    while (client.connected())
-    {
-      if (client.available())
-      {
-        byte recived[10];
-
-        int read = client.readBytes(recived, 7);
-        // client.println();
-        Serial.write(recived, 30);
-        Serial.println();
-
-        // setPixel/x05y16r000g255b000
-        if (recived[0] == 's' && recived[1] == 'p')
-        {
-          int x = recived[2]; // charsToint('0', get[15], get[16]);
-          int y = recived[3]; // charsToint('0', get[18], get[19]);
-          int r = recived[4]; // charsToint(get[21], get[22], get[23]);
-          int g = recived[5]; // charsToint(get[25], get[26], get[27]);
-          int b = recived[6]; // charsToint(get[29], get[30], get[31]);
-          leds[coordinatesToLed(x, y)].setRGB(r, g, b);
-          FastLED.show();
-        }
-        // co1234
-        if (recived[0] == 'c' && recived[1] == 'o')
-        {
-
-          int a = recived[2] + recived[3] + recived[4] + recived[5];
-          client.print(a);
-          Serial.println(a);
-          // AtLeastOneDeviceConnected = true;
-        }
-      }
-    }
-
-    // give the web browser time to receive the data
-
-    delay(1);
-
-    // close the connection:
-    // client.stop();
-    // client.stop();
-
-    // Serial.println("client disconnected");*/
 }

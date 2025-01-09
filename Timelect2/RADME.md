@@ -2,6 +2,25 @@ This project works with the DisplayApp;
 
 # Api
 
+## modes
+
+### [Display mode](DisplayMode.md)
+
+where you draw what you want to be displayed on the screen
+
+### [clock mode](ClockMode.md)
+
+where it shows the time
+
+### [Text mode](TextMode.md) 
+
+displays text
+
+### [General commands](GeneralCommands.md)
+
+a collection of general commands
+
+
 ## /connect/####
 the /#### are 4 random numbers that are sumed up to vierify that the device is present
 
